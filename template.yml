@@ -4,7 +4,7 @@ Parameters:
   KeyName:
     Description: Name of an existing EC2 KeyPair to enable SSH access to the instances
     Type: 'AWS::EC2::KeyPair::KeyName'
-    Default: eu-west-1-key
+    Default: us-west-1-key
     ConstraintDescription: Must be the name of an existing EC2 KeyPair.
   manager1IP:
     Description: >-
@@ -144,7 +144,7 @@ Mappings:
     us-west-1:
       HVM64: NOT_SUPPORTED
       HVMG2: NOT_SUPPORTED
-    eu-west-1:
+    us-west-1:
       HVM64: ami-4c77c93f
       HVMG2: ami-4c77c93f
     eu-central-1:
@@ -179,7 +179,7 @@ Resources:
   swarmSubMgt1a:
     Type: 'AWS::EC2::Subnet'
     Properties:
-      AvailabilityZone: eu-west-1a
+      AvailabilityZone: us-west-1a
       CidrBlock: 10.0.1.0/24
       MapPublicIpOnLaunch: true
       Tags:
@@ -189,7 +189,7 @@ Resources:
   swarmSubMgt1b:
     Type: 'AWS::EC2::Subnet'
     Properties:
-      AvailabilityZone: eu-west-1b
+      AvailabilityZone: us-west-1b
       CidrBlock: 10.0.2.0/24
       MapPublicIpOnLaunch: true
       Tags:
@@ -199,7 +199,7 @@ Resources:
   swarmSubMgt1c:
     Type: 'AWS::EC2::Subnet'
     Properties:
-      AvailabilityZone: eu-west-1c
+      AvailabilityZone: us-west-1c
       CidrBlock: 10.0.3.0/24
       MapPublicIpOnLaunch: true
       Tags:
@@ -209,7 +209,7 @@ Resources:
   swarmSubPrd1a:
     Type: 'AWS::EC2::Subnet'
     Properties:
-      AvailabilityZone: eu-west-1a
+      AvailabilityZone: us-west-1a
       CidrBlock: 10.0.4.0/24
       MapPublicIpOnLaunch: true
       Tags:
@@ -219,7 +219,7 @@ Resources:
   swarmSubPrd1b:
     Type: 'AWS::EC2::Subnet'
     Properties:
-      AvailabilityZone: eu-west-1b
+      AvailabilityZone: us-west-1b
       CidrBlock: 10.0.5.0/24
       MapPublicIpOnLaunch: true
       Tags:
@@ -229,7 +229,7 @@ Resources:
   swarmSubPrd1c:
     Type: 'AWS::EC2::Subnet'
     Properties:
-      AvailabilityZone: eu-west-1c
+      AvailabilityZone: us-west-1c
       CidrBlock: 10.0.6.0/24
       MapPublicIpOnLaunch: true
       Tags:
