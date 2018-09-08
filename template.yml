@@ -1,0 +1,568 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Pluralsight Swarm Course 2016
+Parameters:
+  KeyName:
+    Description: Name of an existing EC2 KeyPair to enable SSH access to the instances
+    Type: 'AWS::EC2::KeyPair::KeyName'
+    Default: eu-west-1-key
+    ConstraintDescription: Must be the name of an existing EC2 KeyPair.
+  manager1IP:
+    Description: >-
+      IP of Swarm manager instance (Swarm manager and discovery service
+      containers run here)
+    Type: String
+    MinLength: '7'
+    MaxLength: '15'
+    Default: 10.0.1.5
+    AllowedPattern: '(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})'
+    ConstraintDescription: must be a valid IP of the form x.x.x.x
+  manager2IP:
+    Description: >-
+      IP of Swarm manager instance (Swarm manager and discovery service
+      containers run here)
+    Type: String
+    MinLength: '7'
+    MaxLength: '15'
+    Default: 10.0.2.5
+    AllowedPattern: '(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})'
+    ConstraintDescription: must be a valid IP of the form x.x.x.x
+  manager3IP:
+    Description: >-
+      IP of Swarm manager instance (Swarm manager and discovery service
+      containers run here)
+    Type: String
+    MinLength: '7'
+    MaxLength: '15'
+    Default: 10.0.3.5
+    AllowedPattern: '(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})'
+    ConstraintDescription: must be a valid IP of the form x.x.x.x
+  node1IP:
+    Description: IP of Swarm node1
+    Type: String
+    MinLength: '7'
+    MaxLength: '15'
+    Default: 10.0.4.5
+    AllowedPattern: '(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})'
+    ConstraintDescription: must be a valid IP of the form x.x.x.x
+  node2IP:
+    Description: IP of Swarm node2
+    Type: String
+    MinLength: '7'
+    MaxLength: '15'
+    Default: 10.0.5.5
+    AllowedPattern: '(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})'
+    ConstraintDescription: must be a valid IP of the form x.x.x.x
+  node3IP:
+    Description: IP of Swarm node3
+    Type: String
+    MinLength: '7'
+    MaxLength: '15'
+    Default: 10.0.6.5
+    AllowedPattern: '(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})'
+    ConstraintDescription: must be a valid IP of the form x.x.x.x
+Mappings:
+  AWSInstanceType2Arch:
+    t2.micro:
+      Arch: HVM64
+    t2.small:
+      Arch: HVM64
+    t2.medium:
+      Arch: HVM64
+    t2.large:
+      Arch: HVM64
+    m3.medium:
+      Arch: HVM64
+    m3.large:
+      Arch: HVM64
+    m3.xlarge:
+      Arch: HVM64
+    m3.2xlarge:
+      Arch: HVM64
+    c3.large:
+      Arch: HVM64
+    c3.xlarge:
+      Arch: HVM64
+    c3.2xlarge:
+      Arch: HVM64
+    c3.4xlarge:
+      Arch: HVM64
+    c3.8xlarge:
+      Arch: HVM64
+    c4.large:
+      Arch: HVM64
+    c4.xlarge:
+      Arch: HVM64
+    c4.2xlarge:
+      Arch: HVM64
+    c4.4xlarge:
+      Arch: HVM64
+    c4.8xlarge:
+      Arch: HVM64
+    g2.2xlarge:
+      Arch: HVMG2
+    r3.large:
+      Arch: HVM64
+    r3.xlarge:
+      Arch: HVM64
+    r3.2xlarge:
+      Arch: HVM64
+    r3.4xlarge:
+      Arch: HVM64
+    r3.8xlarge:
+      Arch: HVM64
+    i2.xlarge:
+      Arch: HVM64
+    i2.2xlarge:
+      Arch: HVM64
+    i2.4xlarge:
+      Arch: HVM64
+    i2.8xlarge:
+      Arch: HVM64
+    d2.xlarge:
+      Arch: HVM64
+    d2.2xlarge:
+      Arch: HVM64
+    d2.4xlarge:
+      Arch: HVM64
+    d2.8xlarge:
+      Arch: HVM64
+    hi1.4xlarge:
+      Arch: HVM64
+    hs1.8xlarge:
+      Arch: HVM64
+    cr1.8xlarge:
+      Arch: HVM64
+    cc2.8xlarge:
+      Arch: HVM64
+  AWSRegionArch2AMI:
+    us-east-1:
+      HVM64: NOT_SUPPORTED
+      HVMG2: NOT_SUPPORTED
+    us-west-2:
+      HVM64: NOT_SUPPORTED
+      HVMG2: NOT_SUPPORTED
+    us-west-1:
+      HVM64: NOT_SUPPORTED
+      HVMG2: NOT_SUPPORTED
+    eu-west-1:
+      HVM64: ami-4c77c93f
+      HVMG2: ami-4c77c93f
+    eu-central-1:
+      HVM64: NOT_SUPPORTED
+      HVMG2: NOT_SUPPORTED
+    ap-northeast-1:
+      HVM64: NOT_SUPPORTED
+      HVMG2: NOT_SUPPORTED
+    ap-southeast-1:
+      HVM64: NOT_SUPPORTED
+      HVMG2: NOT_SUPPORTED
+    ap-southeast-2:
+      HVM64: NOT_SUPPORTED
+      HVMG2: NOT_SUPPORTED
+    sa-east-1:
+      HVM64: NOT_SUPPORTED
+      HVMG2: NOT_SUPPORTED
+    cn-north-1:
+      HVM64: NOT_SUPPORTED
+      HVMG2: NOT_SUPPORTED
+Resources:
+  swarmVPC:
+    Type: 'AWS::EC2::VPC'
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      InstanceTenancy: default
+      Tags:
+        - Key: Name
+          Value: PS-Swarm
+  swarmSubMgt1a:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      AvailabilityZone: eu-west-1a
+      CidrBlock: 10.0.1.0/24
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: swarmSubMgt1a
+      VpcId: !Ref swarmVPC
+  swarmSubMgt1b:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      AvailabilityZone: eu-west-1b
+      CidrBlock: 10.0.2.0/24
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: swarmSubMgt1b
+      VpcId: !Ref swarmVPC
+  swarmSubMgt1c:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      AvailabilityZone: eu-west-1c
+      CidrBlock: 10.0.3.0/24
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: swarmSubMgt1c
+      VpcId: !Ref swarmVPC
+  swarmSubPrd1a:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      AvailabilityZone: eu-west-1a
+      CidrBlock: 10.0.4.0/24
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: swarmSubPrd1a
+      VpcId: !Ref swarmVPC
+  swarmSubPrd1b:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      AvailabilityZone: eu-west-1b
+      CidrBlock: 10.0.5.0/24
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: swarmSubPrd1b
+      VpcId: !Ref swarmVPC
+  swarmSubPrd1c:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      AvailabilityZone: eu-west-1c
+      CidrBlock: 10.0.6.0/24
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: swarmSubPrd1c
+      VpcId: !Ref swarmVPC
+  InternetGateway:
+    Type: 'AWS::EC2::InternetGateway'
+    Properties:
+      Tags:
+        - Key: Application
+          Value: !Ref 'AWS::StackName'
+        - Key: Network
+          Value: Public
+        - Key: Name
+          Value: swarmIGW
+  GatewayToInternet:
+    DependsOn:
+      - swarmVPC
+      - InternetGateway
+    Type: 'AWS::EC2::VPCGatewayAttachment'
+    Properties:
+      VpcId: !Ref swarmVPC
+      InternetGatewayId: !Ref InternetGateway
+  SwarmPubRouteTable:
+    DependsOn:
+      - swarmVPC
+    Type: 'AWS::EC2::RouteTable'
+    Properties:
+      VpcId: !Ref swarmVPC
+      Tags:
+        - Key: Application
+          Value: !Ref 'AWS::StackName'
+        - Key: Name
+          Value: SwarmPubRouteTable
+        - Key: Network
+          Value: Public
+  PublicRoute:
+    DependsOn:
+      - SwarmPubRouteTable
+      - InternetGateway
+    Type: 'AWS::EC2::Route'
+    Properties:
+      RouteTableId: !Ref SwarmPubRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+  swarmSubMgt1aAssociation:
+    DependsOn:
+      - swarmSubMgt1a
+      - SwarmPubRouteTable
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      SubnetId: !Ref swarmSubMgt1a
+      RouteTableId: !Ref SwarmPubRouteTable
+  swarmSubMgt1bAssociation:
+    DependsOn:
+      - swarmSubMgt1b
+      - SwarmPubRouteTable
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      SubnetId: !Ref swarmSubMgt1b
+      RouteTableId: !Ref SwarmPubRouteTable
+  swarmSubMgt1cAssociation:
+    DependsOn:
+      - swarmSubMgt1c
+      - SwarmPubRouteTable
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      SubnetId: !Ref swarmSubMgt1c
+      RouteTableId: !Ref SwarmPubRouteTable
+  swarmSubPrd1aAssociation:
+    DependsOn:
+      - swarmSubPrd1a
+      - SwarmPubRouteTable
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      SubnetId: !Ref swarmSubPrd1a
+      RouteTableId: !Ref SwarmPubRouteTable
+  swarmSubPrd1bAssociation:
+    DependsOn:
+      - swarmSubPrd1b
+      - SwarmPubRouteTable
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      SubnetId: !Ref swarmSubPrd1b
+      RouteTableId: !Ref SwarmPubRouteTable
+  swarmSubPrd1cAssociation:
+    DependsOn:
+      - swarmSubPrd1c
+      - SwarmPubRouteTable
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      SubnetId: !Ref swarmSubPrd1c
+      RouteTableId: !Ref SwarmPubRouteTable
+  manager1:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      InstanceType: t2.micro
+      SecurityGroupIds:
+        - !Ref swarmSGbasic1
+      KeyName: !Ref KeyName
+      ImageId: !FindInMap 
+        - AWSRegionArch2AMI
+        - !Ref 'AWS::Region'
+        - !FindInMap 
+          - AWSInstanceType2Arch
+          - t2.micro
+          - Arch
+      SubnetId: !Ref swarmSubMgt1a
+      PrivateIpAddress: !Ref manager1IP
+      UserData: !Base64 
+        'Fn::Join':
+          - |+
+
+          - - '#!/bin/bash'
+            - sudo hostname manager1
+            - sudo service docker stop
+            - sudo rm -f /etc/docker/key.json
+            - sudo service docker start
+      Tags:
+        - Key: Name
+          Value: manager1
+  manager2:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      InstanceType: t2.micro
+      SecurityGroupIds:
+        - !Ref swarmSGbasic1
+      KeyName: !Ref KeyName
+      ImageId: !FindInMap 
+        - AWSRegionArch2AMI
+        - !Ref 'AWS::Region'
+        - !FindInMap 
+          - AWSInstanceType2Arch
+          - t2.micro
+          - Arch
+      SubnetId: !Ref swarmSubMgt1b
+      PrivateIpAddress: !Ref manager2IP
+      UserData: !Base64 
+        'Fn::Join':
+          - |+
+
+          - - '#!/bin/bash'
+            - sudo hostname manager2
+            - sudo service docker stop
+            - sudo rm -f /etc/docker/key.json
+            - sudo service docker start
+      Tags:
+        - Key: Name
+          Value: manager2
+  manager3:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      InstanceType: t2.micro
+      SecurityGroupIds:
+        - !Ref swarmSGbasic1
+      KeyName: !Ref KeyName
+      ImageId: !FindInMap 
+        - AWSRegionArch2AMI
+        - !Ref 'AWS::Region'
+        - !FindInMap 
+          - AWSInstanceType2Arch
+          - t2.micro
+          - Arch
+      SubnetId: !Ref swarmSubMgt1c
+      PrivateIpAddress: !Ref manager3IP
+      UserData: !Base64 
+        'Fn::Join':
+          - |+
+
+          - - '#!/bin/bash'
+            - sudo hostname manager3
+            - sudo service docker stop
+            - sudo rm -f /etc/docker/key.json
+            - sudo service docker start
+      Tags:
+        - Key: Name
+          Value: manager3
+  node1:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      InstanceType: t2.micro
+      SecurityGroupIds:
+        - !Ref swarmSGbasic1
+      KeyName: !Ref KeyName
+      ImageId: !FindInMap 
+        - AWSRegionArch2AMI
+        - !Ref 'AWS::Region'
+        - !FindInMap 
+          - AWSInstanceType2Arch
+          - t2.micro
+          - Arch
+      SubnetId: !Ref swarmSubPrd1a
+      PrivateIpAddress: !Ref node1IP
+      UserData: !Base64 
+        'Fn::Join':
+          - |+
+
+          - - '#!/bin/bash'
+            - sudo hostname node1
+            - sudo service docker stop
+            - sudo rm -f /etc/docker/key.json
+            - sudo service docker start
+      Tags:
+        - Key: Name
+          Value: node1
+  node2:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      InstanceType: t2.micro
+      SecurityGroupIds:
+        - !Ref swarmSGbasic1
+      KeyName: !Ref KeyName
+      ImageId: !FindInMap 
+        - AWSRegionArch2AMI
+        - !Ref 'AWS::Region'
+        - !FindInMap 
+          - AWSInstanceType2Arch
+          - t2.micro
+          - Arch
+      SubnetId: !Ref swarmSubPrd1b
+      PrivateIpAddress: !Ref node2IP
+      UserData: !Base64 
+        'Fn::Join':
+          - |+
+
+          - - '#!/bin/bash'
+            - sudo hostname node2
+            - sudo service docker stop
+            - sudo rm -f /etc/docker/key.json
+            - sudo service docker start
+      Tags:
+        - Key: Name
+          Value: node2
+  node3:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      InstanceType: t2.micro
+      SecurityGroupIds:
+        - !Ref swarmSGbasic1
+      KeyName: !Ref KeyName
+      ImageId: !FindInMap 
+        - AWSRegionArch2AMI
+        - !Ref 'AWS::Region'
+        - !FindInMap 
+          - AWSInstanceType2Arch
+          - t2.micro
+          - Arch
+      SubnetId: !Ref swarmSubPrd1c
+      PrivateIpAddress: !Ref node3IP
+      UserData: !Base64 
+        'Fn::Join':
+          - |+
+
+          - - '#!/bin/bash'
+            - sudo hostname node3
+            - sudo service docker stop
+            - sudo rm -f /etc/docker/key.json
+            - sudo service docker start
+      Tags:
+        - Key: Name
+          Value: node3
+  swarmSGbasic1:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      VpcId: !Ref swarmVPC
+      GroupDescription: All ports required to get basic Swarm cluster up and working
+      Tags:
+        - Key: Name
+          Value: swarmSGbasic1
+      SecurityGroupIngress:
+        - IpProtocol: '-1'
+          FromPort: '0'
+          ToPort: '65535'
+          CidrIp: 0.0.0.0/0
+Outputs:
+  manager1PrivateIP:
+    Description: Private IP of manager1
+    Value: !GetAtt 
+      - manager1
+      - PrivateIp
+  manager1PublicIP:
+    Description: Public IP of manager1
+    Value: !GetAtt 
+      - manager1
+      - PublicIp
+  manager2PrivateIP:
+    Description: Private IP of manager2
+    Value: !GetAtt 
+      - manager2
+      - PrivateIp
+  manager2PublicIP:
+    Description: Public IP of manager2
+    Value: !GetAtt 
+      - manager2
+      - PublicIp
+  manager3PrivateIP:
+    Description: Private IP of manager3
+    Value: !GetAtt 
+      - manager3
+      - PrivateIp
+  manager3PublicIP:
+    Description: Public IP of manager3
+    Value: !GetAtt 
+      - manager3
+      - PublicIp
+  node1PrivateIP:
+    Description: Private IP of node1
+    Value: !GetAtt 
+      - node1
+      - PrivateIp
+  node1PublicIP:
+    Description: Public IP of node1
+    Value: !GetAtt 
+      - node1
+      - PublicIp
+  node2PrivateIP:
+    Description: Private IP of node2
+    Value: !GetAtt 
+      - node2
+      - PrivateIp
+  node2PublicIP:
+    Description: Public IP of node2
+    Value: !GetAtt 
+      - node2
+      - PublicIp
+  node3PrivateIP:
+    Description: Private IP of node3
+    Value: !GetAtt 
+      - node3
+      - PrivateIp
+  node3PublicIP:
+    Description: Public IP of node3
+    Value: !GetAtt 
+      - node3
+      - PublicIp
