@@ -331,16 +331,16 @@ Resources:
       SecurityGroupIds:
         - !Ref swarmSGbasic1
       KeyName: !Ref KeyName
-      ImageId: !FindInMap 
+      ImageId: !FindInMap
         - AWSRegionArch2AMI
         - !Ref 'AWS::Region'
-        - !FindInMap 
+        - !FindInMap
           - AWSInstanceType2Arch
           - t2.micro
           - Arch
       SubnetId: !Ref swarmSubMgt1a
       PrivateIpAddress: !Ref manager1IP
-      UserData: !Base64 
+      UserData: !Base64
         'Fn::Join':
           - |+
 
@@ -359,16 +359,16 @@ Resources:
       SecurityGroupIds:
         - !Ref swarmSGbasic1
       KeyName: !Ref KeyName
-      ImageId: !FindInMap 
+      ImageId: !FindInMap
         - AWSRegionArch2AMI
         - !Ref 'AWS::Region'
-        - !FindInMap 
+        - !FindInMap
           - AWSInstanceType2Arch
           - t2.micro
           - Arch
       SubnetId: !Ref swarmSubMgt1b
       PrivateIpAddress: !Ref manager2IP
-      UserData: !Base64 
+      UserData: !Base64
         'Fn::Join':
           - |+
 
@@ -387,16 +387,16 @@ Resources:
       SecurityGroupIds:
         - !Ref swarmSGbasic1
       KeyName: !Ref KeyName
-      ImageId: !FindInMap 
+      ImageId: !FindInMap
         - AWSRegionArch2AMI
         - !Ref 'AWS::Region'
-        - !FindInMap 
+        - !FindInMap
           - AWSInstanceType2Arch
           - t2.micro
           - Arch
       SubnetId: !Ref swarmSubMgt1c
       PrivateIpAddress: !Ref manager3IP
-      UserData: !Base64 
+      UserData: !Base64
         'Fn::Join':
           - |+
 
@@ -415,16 +415,16 @@ Resources:
       SecurityGroupIds:
         - !Ref swarmSGbasic1
       KeyName: !Ref KeyName
-      ImageId: !FindInMap 
+      ImageId: !FindInMap
         - AWSRegionArch2AMI
         - !Ref 'AWS::Region'
-        - !FindInMap 
+        - !FindInMap
           - AWSInstanceType2Arch
           - t2.micro
           - Arch
       SubnetId: !Ref swarmSubPrd1a
       PrivateIpAddress: !Ref node1IP
-      UserData: !Base64 
+      UserData: !Base64
         'Fn::Join':
           - |+
 
@@ -443,16 +443,16 @@ Resources:
       SecurityGroupIds:
         - !Ref swarmSGbasic1
       KeyName: !Ref KeyName
-      ImageId: !FindInMap 
+      ImageId: !FindInMap
         - AWSRegionArch2AMI
         - !Ref 'AWS::Region'
-        - !FindInMap 
+        - !FindInMap
           - AWSInstanceType2Arch
           - t2.micro
           - Arch
       SubnetId: !Ref swarmSubPrd1b
       PrivateIpAddress: !Ref node2IP
-      UserData: !Base64 
+      UserData: !Base64
         'Fn::Join':
           - |+
 
@@ -471,16 +471,16 @@ Resources:
       SecurityGroupIds:
         - !Ref swarmSGbasic1
       KeyName: !Ref KeyName
-      ImageId: !FindInMap 
+      ImageId: !FindInMap
         - AWSRegionArch2AMI
         - !Ref 'AWS::Region'
-        - !FindInMap 
+        - !FindInMap
           - AWSInstanceType2Arch
           - t2.micro
           - Arch
       SubnetId: !Ref swarmSubPrd1c
       PrivateIpAddress: !Ref node3IP
-      UserData: !Base64 
+      UserData: !Base64
         'Fn::Join':
           - |+
 
@@ -508,61 +508,61 @@ Resources:
 Outputs:
   manager1PrivateIP:
     Description: Private IP of manager1
-    Value: !GetAtt 
+    Value: !GetAtt
       - manager1
       - PrivateIp
   manager1PublicIP:
     Description: Public IP of manager1
-    Value: !GetAtt 
+    Value: !GetAtt
       - manager1
       - PublicIp
   manager2PrivateIP:
     Description: Private IP of manager2
-    Value: !GetAtt 
+    Value: !GetAtt
       - manager2
       - PrivateIp
   manager2PublicIP:
     Description: Public IP of manager2
-    Value: !GetAtt 
+    Value: !GetAtt
       - manager2
       - PublicIp
   manager3PrivateIP:
     Description: Private IP of manager3
-    Value: !GetAtt 
+    Value: !GetAtt
       - manager3
       - PrivateIp
   manager3PublicIP:
     Description: Public IP of manager3
-    Value: !GetAtt 
+    Value: !GetAtt
       - manager3
       - PublicIp
   node1PrivateIP:
     Description: Private IP of node1
-    Value: !GetAtt 
+    Value: !GetAtt
       - node1
       - PrivateIp
   node1PublicIP:
     Description: Public IP of node1
-    Value: !GetAtt 
+    Value: !GetAtt
       - node1
       - PublicIp
   node2PrivateIP:
     Description: Private IP of node2
-    Value: !GetAtt 
+    Value: !GetAtt
       - node2
       - PrivateIp
   node2PublicIP:
     Description: Public IP of node2
-    Value: !GetAtt 
+    Value: !GetAtt
       - node2
       - PublicIp
   node3PrivateIP:
     Description: Private IP of node3
-    Value: !GetAtt 
+    Value: !GetAtt
       - node3
       - PrivateIp
   node3PublicIP:
     Description: Public IP of node3
-    Value: !GetAtt 
+    Value: !GetAtt
       - node3
       - PublicIp
